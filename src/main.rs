@@ -14,9 +14,11 @@ fn handle_command(ledger: &mut Ledger, input: &str) {
 
         "help" => {
          println!("Available commands:");
-         println!("  create <name> <amount>  - Create a new account");
-         println!("  balance <name>          - Check account balance");
-         println!("  quit / exit             - Exit the program");
+         println!("  create <name> <amount>            - Create a new account");
+         println!("  balance <name>                    - Check account balance");
+         println!("  transfer <from> <to> <amount>     - Create Transaction");
+         println!("  list                              - List all accounts");
+         println!("  quit / exit                       - Exit the program");
         }
         "create" => {
             if parts.len() != 3 {
@@ -49,6 +51,27 @@ fn handle_command(ledger: &mut Ledger, input: &str) {
               Some(balance) => println!("{} {}", name, balance),
               None => println!("account {} not found!", name)
             }
+        }
+
+
+        "transfer" => {
+            let from = parts[1];
+            let to = parts[2];
+            let amount:u64 = match parts[3].parse() {
+                Ok(good) => good,
+                Err(_) => {
+                    println!("❌ Invalid amount. Please use a positive number.");
+                    return;
+        }
+            };
+            match ledger.transfer(from, to, amount) {
+                Ok(_) => println!("✅ Transferred {} tokens from {} to {}", amount, from, to),
+                Err(e) => println!("❌ Error: {}", e),
+            }
+        }
+
+        "list" => {
+            ledger.list_accounts();
         }
 
          _=> {
