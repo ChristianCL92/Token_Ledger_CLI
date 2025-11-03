@@ -50,16 +50,12 @@ impl Ledger {
     
     }
 
-    pub fn list_accounts(&self){
-        if self.accounts.is_empty() {
-            println!("No accounts created yet, Create one with: create <name> <amount>");
-            return;
-        }
+    pub fn list_accounts(&self) -> Vec<(String, u64)> {
+       
+        let mut accounts: Vec<(String, u64)> = self.accounts.iter().map(|(name, balance)| (name.clone(), *balance)).collect();
+        
+        accounts.sort_by(|a, b|a.0.cmp(&b.0));
 
-        for (key, value) in &self.accounts {
-            println!("Registered accounts with name {} and amount {}", key, value);
-        }
-
-        println!();
+        accounts
     }
 }
