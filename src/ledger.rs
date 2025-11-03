@@ -1,5 +1,9 @@
 use std::collections::HashMap;
-
+use std::io::Read;
+use std::fs::File;
+use std::io::Write;
+use serde::{Deserialize, Serialize};
+#[derive(Serialize, Deserialize)]
 pub struct Ledger {
     accounts: HashMap<String, u64>
     
@@ -58,4 +62,27 @@ impl Ledger {
 
         accounts
     }
+
+    pub fn save_to_file(&self, filename: &str) -> Result<(), String> {
+        let json = serde_json::to_string_pretty(&self)
+        .map_err(|e| format!("Failed to serialize: {}", e))?;
+
+        let mut file = File::create(filename).map_err(|e| format!("failed to create file {}", e))?;
+
+        file.write_all(json.as_bytes()).map_err(|e| format!("Failed to write to file: {}",e))?;
+
+        Ok(())
+    }
+
+     pub fn load_from_file(filename: &str ) -> Result<Self, String> {
+        let mut file = File::open(filename).map_err(|e| format!("failed to open file{}", e))?;
+
+        let mut content = String::new();
+        file.read_to_string(& mut content).map_err(|e| format!("Could not read the file {}", e))?;
+
+        let ledger_to_parse:Ledger = serde_json::from_str(&content)
+        .map_err(|e| format!("Could not deserialize the file {}", e))?;
+       
+       Ok(ledger_to_parse)
+    } 
 }
